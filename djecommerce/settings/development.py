@@ -3,18 +3,18 @@ from decouple import config, Csv
 from .base import BASE_DIR, INSTALLED_APPS, MIDDLEWARE
 
 # ------------------------------------------------------------------------------
-# DEBUG / HOSTS
+# DEBUG & HOST CONFIG
 # ------------------------------------------------------------------------------
-# Turn on locally, off in production unless you explicitly set DEBUG=True
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-# A comma-separated list in your env, e.g.
-#   ALLOWED_HOSTS=127.0.0.1,localhost,your.azure.host
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
     default='127.0.0.1,localhost',
     cast=Csv()
 )
+
+# In Azure, make sure to set:
+# ALLOWED_HOSTS=your-app-name.azurewebsites.net,127.0.0.1,localhost
 
 # ------------------------------------------------------------------------------
 # INSTALLED APPS & MIDDLEWARE
@@ -23,13 +23,12 @@ INSTALLED_APPS += [
     'debug_toolbar',
 ]
 
-# prepend so the toolbar catches early middleware behaviors
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ] + MIDDLEWARE
 
 # ------------------------------------------------------------------------------
-# django-debug-toolbar settings
+# DEBUG TOOLBAR
 # ------------------------------------------------------------------------------
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.versions.VersionsPanel',
@@ -47,7 +46,7 @@ DEBUG_TOOLBAR_PANELS = [
 ]
 
 def show_toolbar(request):
-    return DEBUG  # only show when DEBUG=True
+    return DEBUG  # Only show if DEBUG is on
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
@@ -55,7 +54,7 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 # ------------------------------------------------------------------------------
-# DATABASE (SQLite for dev)
+# SQLITE DB FOR LOCAL DEVELOPMENT
 # ------------------------------------------------------------------------------
 DATABASES = {
     'default': {
@@ -65,7 +64,12 @@ DATABASES = {
 }
 
 # ------------------------------------------------------------------------------
-# Stripe keys (fallback to empty so decouple won’t explode)
+# STRIPE KEYS (read from environment, fallback to empty string)
 # ------------------------------------------------------------------------------
 STRIPE_PUBLIC_KEY = config('STRIPE_TEST_PUBLIC_KEY', default='')
 STRIPE_SECRET_KEY = config('STRIPE_TEST_SECRET_KEY', default='')
+
+# ------------------------------------------------------------------------------
+# STATIC FILES STORAGE FIX (Optional here, already in base.py is enough)
+# ------------------------------------------------------------------------------
+# You can override STATICFILES_STORAGE here too if needed.
