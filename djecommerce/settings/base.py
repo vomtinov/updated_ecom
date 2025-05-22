@@ -1,7 +1,11 @@
 import os
 from decouple import config
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))
+    )
+)
 
 SECRET_KEY = config('SECRET_KEY')
 
@@ -27,7 +31,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'allauth.account.middleware.AccountMiddleware',  # ✅ Required for allauth
+    'allauth.account.middleware.AccountMiddleware',  # required for allauth
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -44,7 +48,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',
+                'django.template.context_processors.request',  # required by allauth
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -60,14 +64,27 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+#
+# STATIC / MEDIA
+#
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static_in_env')]
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static_in_env'),
+]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media_root')
 
-# Auth settings
+# *** Crucial fix for Django 4.2+ storage registry ***
+# This avoids the “missing STATICFILES_STORAGE_ALIAS” error when
+# collectstatic tries to import the 'staticfiles' alias.
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+
+#
+# AUTH
+#
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -76,8 +93,12 @@ AUTHENTICATION_BACKENDS = (
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 
+#
 # CRISPY FORMS
+#
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-# Fix for primary key warnings
+#
+# DEFAULT PRIMARY KEY TYPE
+#
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
